@@ -1,0 +1,33 @@
+from transformers import BertTokenizer, BertForSequenceClassification
+from torch.utils.data import DataLoader, TensorDataset
+import torch.optim as optim
+import torch
+
+# Initialize tokenizer and model
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=1)  # num_labels=1 for regression task
+
+# Prepare data
+notes = ["note_1", "note_2", ...]
+scores = [score_1, score_2, ...]
+encodings = tokenizer(notes, truncation=True, padding=True)
+input_ids = encodings['input_ids']
+attention_mask = encodings['attention_mask']
+labels = torch.tensor(scores)
+
+# Create DataLoader
+dataset = TensorDataset(input_ids, attention_mask, labels)
+dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
+
+# Define optimizer
+optimizer = optim.AdamW(params=model.parameters(), lr=1e-5)
+
+# Fine-tuning
+for epoch in range(3):
+    for batch in dataloader:
+        input_ids, attention_mask, labels = batch
+        optimizer.zero_grad()
+        outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
+        loss = outputs.loss
+        loss.backward()
+        optimizer.step()
