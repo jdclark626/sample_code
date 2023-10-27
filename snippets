@@ -15,6 +15,11 @@ input_ids = encodings['input_ids']
 attention_mask = encodings['attention_mask']
 labels = torch.tensor(scores)
 
+# Convert encoded notes and scores to PyTorch tensors
+input_ids = torch.tensor(input_ids)
+attention_mask = torch.tensor(attention_mask)
+labels = torch.tensor(scores)
+
 # Create DataLoader
 dataset = TensorDataset(input_ids, attention_mask, labels)
 dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
